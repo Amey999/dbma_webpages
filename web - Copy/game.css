@@ -1,0 +1,128 @@
+body {
+    font-family: 'Verdana', sans-serif;
+    text-align: center;
+    margin: 20px;
+    background-color: #f4f4f4;
+}
+
+h1 {
+    color: #009688; /* Teal color */
+    padding: 2% 2% 2% 18%;
+}
+
+#memory-game {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.memory-card {
+ 
+    width: 180px;
+    height: 120px;
+    background-color: #ffec16; /* Teal color */
+    border: 1px solid #009688; /* Teal color */
+    margin: 10px;
+    display: inline-block;
+    cursor: pointer;
+    overflow: hidden;
+    perspective: 1000px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.memory-card:hover .flipper {
+    transform: rotateY(180deg);
+}
+
+.flipper {
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+}
+
+.front, .back {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #fff; /* White text color */
+}
+
+.back {
+    transform: rotateY(180deg);
+    background-color: #009688; /* Teal color */
+    border-radius: 8px;
+}
+
+h1 {
+    color: #009688; /* Teal color */
+}
+
+/* Optional: Add hover effects or transitions for a smoother interaction */
+.memory-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+/* Navbar styling */
+.navbar {
+    background-color: #009688; /* Teal color */
+}
+
+.navbar-brand {
+    color: #fff; /* White text color */
+}
+
+.navbar-nav .nav-link {
+    color: #fff !important; /* White text color */
+}
+
+.navbar-toggler-icon {
+    background-color: #fff; /* White background color */
+}
+
+.form-control {
+    background-color: #fff; /* White background color */
+    color: #009688; /* Teal text color */
+}
+
+.btn-outline-success {
+    color: #009688; /* Teal text color */
+    border-color: #009688; /* Teal border color */
+}
+
+.btn-outline-success:hover {
+    background-color: #009688; /* Teal color on hover */
+    color: #fff; /* White text color on hover */
+}
+
+
+.front, .back {
+    
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #000; /* Change to black text color */
+}
+
+/* Define different colors for the back of each card */
+.memory-card:nth-child(odd) .back {
+    background-color: #e84a5f; /* Watermelon color */
+}
+
+.memory-card:nth-child(even) .back {
+    background-color: #e84a5f; /* Mustard color */
+}

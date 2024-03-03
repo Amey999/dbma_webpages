@@ -1,0 +1,511 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Language Learning Website</title>
+  <style>
+    #pronunciation-text {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    #correct-pronunciation {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .practice-section {
+      margin-bottom: 30px;
+    }
+
+    #timer {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .success-message {
+      color: green;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .error-message {
+      color: red;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pronunciation Practice</h1>
+
+  <div id="difficulty-selector">
+    <label for="difficulty">Choose difficulty level:</label>
+    <select id="difficulty" onchange="changeDifficulty()">
+      <option value="easy">Easy</option>
+      <option value="medium">Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+  </div>
+
+  <div class="practice-section">
+    <p id="pronunciation-text">Listen to the phrase and try to pronounce it.</p>
+    <button onclick="startPractice()">Start Pronunciation Practice</button>
+    <div id="countdown"></div>
+    <div id="result" class="result"></div>
+    <div id="correct-pronunciation" class="correct-pronunciation">
+      <p>Correct Pronunciation: <span id="correct-text"></span></p>
+      <button onclick="nextSentence()">Next Sentence</button>
+    </div>
+    <div id="timer" class="timer"></div>
+    <div id="error-message" class="error-message"></div>
+  </div>
+
+  <div id="overall-score" style="font-weight: bold; margin-top: 30px;"></div>
+  <div id="congratulations" class="success-message"></div>
+
+  <script>
+    let recognition;
+    let scores = [];
+    let timers = [];
+    let currentSentence = 0;
+    let difficulty = "easy";
+
+    const sentences = {
+      easy: [
+        "I study in Vishwakarma institute of technology",
+        "I enjoy learning new languages",
+        "Thank you for your assistance"
+      ],
+      medium: [
+        "The quick brown fox jumps over the lazy dog",
+        "A journey of a thousand miles begins with a single step",
+        "Where there is a will, there is a way"
+      ],
+      hard: [
+        "Sphinx of black quartz, judge my vow",
+        "The five boxing wizards jump quickly",
+        "How razorback-jumping frogs can level six piqued gymnasts"
+      ]
+    };
+
+    function changeDifficulty() {
+      difficulty = document.getElementById('difficulty').value;
+      scores = [];
+      timers = [];
+      currentSentence = 0;
+      document.getElementById('pronunciation-text').textContent = `Listen to the phrase and try to pronounce it:`;
+      document.getElementById('overall-score').textContent = '';
+      document.getElementById('congratulations').textContent = '';
+      document.getElementById('correct-pronunciation').style.display = 'none';
+      document.getElementById('timer').textContent = '';
+      document.getElementById('result').textContent = '';
+      document.getElementById('countdown').textContent = '';
+      document.getElementById('correct-text').textContent = sentences[difficulty][currentSentence];
+      document.getElementById('error-message').textContent = '';
+    }
+
+    function startPractice() {
+      if (!sentences[difficulty] || sentences[difficulty].length === 0) {
+        document.getElementById('error-message').textContent = 'No sentences available for the selected difficulty level.';
+        return;
+      }
+
+      resetPractice();
+
+      const countdownElement = document.getElementById('countdown');
+      countdownElement.textContent = 'Get ready...';
+
+      // Display a countdown before starting the practice
+      setTimeout(() => {
+        countdownElement.textContent = '3';
+        setTimeout(() => {
+          countdownElement.textContent = '2';
+          setTimeout(() => {
+            countdownElement.textContent = '1';
+            setTimeout(() => {
+              countdownElement.textContent = '';
+              document.getElementById('correct-pronunciation').style.display = 'block';
+              startSpeechRecognition();
+            }, 1000);
+          }, 1000);
+        }, 1000);
+      }, 1000);
+    }
+
+    function startSpeechRecognition() {
+      resetSection();
+
+      recognition = new webkitSpeechRecognition();
+      const startTime = new Date();
+
+      recognition.onstart = () => {
+        document.getElementById('result').textContent = 'Listening...';
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('result').textContent = `You said: ${transcript}`;
+
+        const correctText = sentences[difficulty][currentSentence].toLowerCase();
+        const userText = transcript.toLowerCase();
+
+        // Compare user's pronunciation with the correct pronunciation
+        if (userText === correctText) {
+          document.getElementById('result').innerHTML += ' (<span style="color: green;">Correct pronunciation!</span>)';
+          scores.push(1);
+        } else {
+          document.getElementById('result').innerHTML += ' (<span style="color: red;">Incorrect pronunciation</span>)';
+          scores.push(0);
+        }
+
+        // Update overall score
+        updateOverallScore();
+
+        // Stop timer and calculate elapsed time
+        const endTime = new Date();
+        const elapsedTime = (endTime - startTime) / 1000; // Convert to seconds
+        document.getElementById('timer').textContent = `Time: ${elapsedTime.toFixed(2)}s`;
+        timers.push(elapsedTime);
+      };
+
+      recognition.onend = () => {
+        document.getElementById('result').textContent += ' (Speech recognition ended)';
+      };
+
+      recognition.onerror = (event) => {
+        if (event.error !== 'aborted') {
+          document.getElementById('result').textContent = `Error occurred: ${event.error}`;
+        }
+      };
+
+      // Start recognition
+      recognition.start();
+    }
+
+    function nextSentence() {
+      // Move to the next sentence
+      currentSentence++;
+      if (currentSentence < sentences[difficulty].length) {
+        document.getElementById('correct-text').textContent = sentences[difficulty][currentSentence];
+        startSpeechRecognition();
+      } else {
+        endPractice();
+      }
+    }
+
+    function updateOverallScore() {
+      const totalScore = scores.reduce((acc, score) => acc + score, 0);
+      const overallScore = (totalScore / scores.length) * 100;
+      document.getElementById('overall-score').textContent = `Overall Score: ${overallScore.toFixed(2)}%`;
+    }
+
+    function endPractice() {
+      const totalElapsedTime = timers.reduce((acc, timer) => acc + timer, 0);
+      const averageTime = totalElapsedTime / timers.length;
+
+      document.getElementById('congratulations').textContent = `Congratulations! You completed the practice with an overall score of ${document.getElementById('overall-score').textContent} and an average time of ${averageTime.toFixed(2)}s per sentence.`;
+    }
+
+    function resetPractice() {
+      if (recognition) {
+        recognition.abort();
+      }
+
+      scores = [];
+      timers = [];
+      currentSentence = 0;
+      document.getElementById('pronunciation-text').textContent = `Listen to the phrase and try to pronounce it:`;
+      document.getElementById('overall-score').textContent = '';
+      document.getElementById('congratulations').textContent = '';
+      document.getElementById('correct-pronunciation').style.display = 'none';
+      document.getElementById('timer').textContent = '';
+      document.getElementById('result').textContent = '';
+      document.getElementById('countdown').textContent = '';
+      document.getElementById('correct-text').textContent = sentences[difficulty][currentSentence];
+      document.getElementById('error-message').textContent = '';
+    }
+
+    function resetSection() {
+      document.getElementById('result').textContent = '';
+      document.getElementById('timer').textContent = '';
+      document.getElementById('correct-pronunciation').style.display = 'block';
+    }
+  </script>
+</body>
+</html> -->
+--------------------------------------------------------------------------------------------------------------
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Language Learning Website</title>
+  <style>
+    #pronunciation-text {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    #correct-pronunciation {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .practice-section {
+      margin-bottom: 30px;
+    }
+
+    #timer {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .success-message {
+      color: green;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .error-message {
+      color: red;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pronunciation Practice</h1>
+
+  <div id="difficulty-selector">
+    <label for="difficulty">Choose difficulty level:</label>
+    <select id="difficulty" onchange="changeDifficulty()">
+      <option value="easy">Easy</option>
+      <option value="medium">Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+  </div>
+
+  <div class="practice-section">
+    <p id="pronunciation-text">Listen to the phrase and try to pronounce it.</p>
+    <button onclick="startPractice()">Start Pronunciation Practice</button>
+    <div id="countdown"></div>
+    <div id="result" class="result"></div>
+    <div id="correct-pronunciation" class="correct-pronunciation">
+      <p>Correct Pronunciation: <span id="correct-text"></span></p>
+      <button onclick="nextSentence()">Next Sentence</button>
+    </div>
+    <div id="timer" class="timer"></div>
+    <div id="error-message" class="error-message"></div>
+  </div>
+
+  <div id="overall-score" style="font-weight: bold; margin-top: 30px;"></div>
+  <div id="congratulations" class="success-message"></div>
+
+  <script>
+    let recognition;
+    let scores = [];
+    let timers = [];
+    let currentSentence = 0;
+    let difficulty = "easy";
+
+    const sentences = {
+      easy: [
+        "I study in Vishwakarma institute of technology",
+        "I enjoy learning new languages",
+        "Thank you for your assistance"
+      ],
+      medium: [
+        "The quick brown fox jumps over the lazy dog",
+        "A journey of a thousand miles begins with a single step",
+        "Where there is a will, there is a way"
+      ],
+      hard: [
+        "Sphinx of black quartz, judge my vow",
+        "The five boxing wizards jump quickly",
+        "How razorback-jumping frogs can level six piqued gymnasts"
+      ]
+    };
+
+    function changeDifficulty() {
+      difficulty = document.getElementById('difficulty').value;
+      scores = [];
+      timers = [];
+      currentSentence = 0;
+      document.getElementById('pronunciation-text').textContent = `Listen to the phrase and try to pronounce it:`;
+      document.getElementById('overall-score').textContent = '';
+      document.getElementById('congratulations').textContent = '';
+      document.getElementById('correct-pronunciation').style.display = 'none';
+      document.getElementById('timer').textContent = '';
+      document.getElementById('result').textContent = '';
+      document.getElementById('countdown').textContent = '';
+      document.getElementById('correct-text').textContent = sentences[difficulty][currentSentence];
+      document.getElementById('error-message').textContent = '';
+    }
+
+    function startPractice() {
+      if (!sentences[difficulty] || sentences[difficulty].length === 0) {
+        document.getElementById('error-message').textContent = 'No sentences available for the selected difficulty level.';
+        return;
+      }
+
+      resetPractice();
+
+      const countdownElement = document.getElementById('countdown');
+      countdownElement.textContent = 'Get ready...';
+
+      // Display a countdown before starting the practice
+      setTimeout(() => {
+        countdownElement.textContent = '3';
+        setTimeout(() => {
+          countdownElement.textContent = '2';
+          setTimeout(() => {
+            countdownElement.textContent = '1';
+            setTimeout(() => {
+              countdownElement.textContent = '';
+              document.getElementById('correct-pronunciation').style.display = 'block';
+              startSpeechRecognition();
+            }, 1000);
+          }, 1000);
+        }, 1000);
+      }, 1000);
+    }
+
+    function startSpeechRecognition() {
+      resetSection();
+
+      recognition = new webkitSpeechRecognition();
+      const startTime = new Date();
+
+      recognition.onstart = () => {
+        document.getElementById('result').textContent = 'Listening...';
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('result').textContent = `You said: ${transcript}`;
+
+        const correctText = sentences[difficulty][currentSentence].toLowerCase();
+        const userText = transcript.toLowerCase();
+
+        // Compare user's pronunciation with the correct pronunciation
+        if (userText === correctText) {
+          document.getElementById('result').innerHTML += ' (<span style="color: green;">Correct pronunciation!</span>)';
+          scores.push(1);
+        } else {
+          document.getElementById('result').innerHTML += ' (<span style="color: red;">Incorrect pronunciation</span>)';
+          scores.push(0);
+        }
+
+        // Update overall score
+        updateOverallScore();
+
+        // Stop timer and calculate elapsed time
+        const endTime = new Date();
+        const elapsedTime = (endTime - startTime) / 1000; // Convert to seconds
+        document.getElementById('timer').textContent = `Time: ${elapsedTime.toFixed(2)}s`;
+        timers.push(elapsedTime);
+        addListenButton();
+      };
+
+      recognition.onend = () => {
+        document.getElementById('result').textContent += ' (Speech recognition ended)';
+      };
+
+      recognition.onerror = (event) => {
+        if (event.error !== 'aborted') {
+          document.getElementById('result').textContent = `Error occurred: ${event.error}`;
+        }
+      };
+
+      // Start recognition
+      recognition.start();
+    }
+
+    function nextSentence() {
+      // Move to the next sentence
+      currentSentence++;
+      if (currentSentence < sentences[difficulty].length) {
+        document.getElementById('correct-text').textContent = sentences[difficulty][currentSentence];
+        startSpeechRecognition();
+      } else {
+        endPractice();
+      }
+    }
+
+    function updateOverallScore() {
+      const totalScore = scores.reduce((acc, score) => acc + score, 0);
+      const overallScore = (totalScore / scores.length) * 100;
+      document.getElementById('overall-score').textContent = `Overall Score: ${overallScore.toFixed(2)}%`;
+    }
+
+    function endPractice() {
+      const totalElapsedTime = timers.reduce((acc, timer) => acc +
+
+ timer, 0);
+      const averageTime = totalElapsedTime / timers.length;
+
+      document.getElementById('congratulations').textContent = `Congratulations! You completed the practice with an overall score of ${document.getElementById('overall-score').textContent} and an average time of ${averageTime.toFixed(2)}s per sentence.`;
+    }
+
+    function resetPractice() {
+      if (recognition) {
+        recognition.abort();
+      }
+
+      scores = [];
+      timers = [];
+      currentSentence = 0;
+      document.getElementById('pronunciation-text').textContent = `Listen to the phrase and try to pronounce it:`;
+      document.getElementById('overall-score').textContent = '';
+      document.getElementById('congratulations').textContent = '';
+      document.getElementById('correct-pronunciation').style.display = 'none';
+      document.getElementById('timer').textContent = '';
+      document.getElementById('result').textContent = '';
+      document.getElementById('countdown').textContent = '';
+      document.getElementById('correct-text').textContent = sentences[difficulty][currentSentence];
+      document.getElementById('error-message').textContent = '';
+
+      // Remove "Listen" buttons
+      const listenButtons = document.querySelectorAll('.listen-button');
+      listenButtons.forEach(button => button.remove());
+    }
+
+    function resetSection() {
+      document.getElementById('result').textContent = '';
+      document.getElementById('timer').textContent = '';
+      document.getElementById('correct-pronunciation').style.display = 'block';
+    }
+
+    function addListenButton() {
+    // Check if there is already a "Listen" button, and remove it
+    const existingButton = document.querySelector('.listen-button');
+    if (existingButton) {
+      existingButton.remove();
+    }
+
+    const listenButton = document.createElement('button');
+    listenButton.textContent = 'Listen';
+    listenButton.className = 'listen-button';
+    listenButton.onclick = () => speakCorrectPronunciation(sentences[difficulty][currentSentence]);
+    document.querySelector('.practice-section').appendChild(listenButton);
+  }
+
+    function speakCorrectPronunciation(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      window.speechSynthesis.speak(utterance);
+    }
+  </script>
+</body>
+</html> -->

@@ -1,0 +1,170 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #feffe2;
+    color: #495057;
+    margin: 0;
+    padding: 0;
+  }
+  
+  h1 {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin-left: 20px;
+    color: #333;
+  }
+  
+  #difficulty-selector {
+    margin-bottom: 20px;
+    margin-left: 20px;
+  }
+  
+  #pronunciation-text {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: #343a40;
+    
+  }
+  
+  .practice-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #97ffaf;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 93.5%;
+    margin:auto auto 30px 20px ;
+    
+  }
+  
+  button {
+    padding: 12px;
+    background-color: #45a049;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  button:hover {
+    background-color: #24c42c;
+  }
+  
+  .result-card {
+    margin-top: 20px;
+  }
+  
+  .correct-pronunciation {
+    display: none;
+  }
+  
+  /* Additional styles for result cards and timer card */
+  #main-card {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .result-card,
+  .timer-card {
+    flex: 1;
+    padding: 20px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-right: 20px;
+  }
+  
+  .timer-card {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+  }
+  
+  #timer {
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 2em;
+  }
+  
+  .correct-pronunciation {
+    margin-top: 20px;
+  }
+  
+  .error-message {
+    color: red;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+  
+  .success-message {
+    color: green;
+    font-weight: bold;
+    margin-top: 20px;
+  }
+  
+  /* Additional styles for overall score and congratulations */
+  .overall-score,
+  .success-message {
+    font-weight: bold;
+    margin-top: 20px;
+    font-size: 1.2em;
+    margin-left: 20px;
+  }
+  
+  .success-message {
+    color: #28a745;
+  }
+  
+  .error-message {
+    color: #dc3545;
+  }
+  
+  .listen-button {
+    margin-top: 10px;
+  }
+  
+  
+  /* Timer card specific styles */
+
+  
+#timer-card {
+  width: 40%;
+  max-width: 300px;
+  margin-top: 20px;
+  margin-left: 20px;
+  padding: 20px;
+  background-color: #c52929;
+  color: #fff;
+  border-radius: 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.timer {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+#countdown {
+  font-size: 3em;
+  margin-bottom: 10px;
+}
+
+/* Additional styles for the timer card */
+.timer-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+footer {
+  background-color: #333; /* Dark footer background */
+  color: #fff;
+  text-align: center;
+  padding: 5px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
